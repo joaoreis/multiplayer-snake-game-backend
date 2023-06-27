@@ -26,7 +26,6 @@ const getUserList = () => {
  * @function removeUserById remove usuário pelo id
  * @param {string} userId
  */
-
 const removeUserById = (userId) => {
   let i = 0;
   while (i < _users.length){
@@ -37,8 +36,13 @@ const removeUserById = (userId) => {
   }
 }
 
+const userExists = (userId) => {
+  return !!_users.find(el => el.id === userId);
+};
+
 export {
   setNewUser,
   getUserList,
-  removeUserById
+  removeUserById,
+  userExists
 }
