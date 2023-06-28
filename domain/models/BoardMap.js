@@ -1,5 +1,5 @@
 import SnakeNotFoundError from "../errors/SnakeNotFoundError.js";
-import {gamePossibleStates, movements} from "../utils/constants.js";
+import { movements, gamePossibleStates } from "../utils/constants.js";
 import Coordinates from "./Coordinates.js";
 import Snake from "./Snake.js";
 
@@ -28,7 +28,7 @@ export default class BoardMap {
 
   /**
    * @property gameState
-   * @type {number}
+   * @type {gamePossibleStates}
    */
   gameState;
 
@@ -45,8 +45,8 @@ export default class BoardMap {
 
   /**
    * @constructor
-   * @param {number} boardSize 
-   * @param {number} speed 
+   * @param {number} boardSize
+   * @param {number} speed
    */
   constructor(boardSize = 0, speed) {
     this.boardSize = new Coordinates(boardSize, boardSize);
@@ -55,7 +55,7 @@ export default class BoardMap {
   }
 
   /**
-   * @function 
+   * @function
    * @returns {Coordinates} BoardMap center's Coordinates
    */
   middleCell() {
@@ -66,7 +66,7 @@ export default class BoardMap {
   }
 
   /**
-   * @function 
+   * @function
    * Create a new Snake and push to the Snake's Map
    * @param {string} userId
    */
@@ -76,45 +76,49 @@ export default class BoardMap {
   }
 
   /**
-   * @function 
+   * @function
    * Generates a new Target in the BoardMap and push to the Target's Array
    */
   generateRandomTargetCell() {
-    if (this.targetCells.length === this.snakes.size) 
+    if (this.targetCells.length === this.snakes.size)
       return;
 
     let targetCell = this.getRandomCell();
-
+    while (!this.isTargetValid(targetCell)) {
+      targetCell = this.getRandomCell();
+    }
     this.targetCells.push(targetCell);
   }
 
   /**
-   * @function 
+   * @function
    * @returns {Coordinates} Returns a random Coordinates inside the BoardMap
    */
   getRandomCell() {
     return new Coordinates(
-      Math.floor(Math.random() * this.boardSize.x),
-      Math.floor(Math.random() * this.boardSize.y)
+        Math.floor(Math.random() * this.boardSize.x),
+        Math.floor(Math.random() * this.boardSize.y)
     );
   }
 
   /**
-   * @function 
+   * @function
    * @param {Coordinates} param0
    * @param {Snake} snake
    * @returns {Coordinates | undefined} Returns if this snake's movement is towards a Target
    */
   isTargetNewHead({ x, y }, snake) {
-    return this.targetCells.find(
+    let cell = this.targetCells.find(
         cell =>
-            x + snake.direction.move.x === cell.x &&
-            y + snake.direction.move.y === cell.y
+            x === cell.x &&
+            y === cell.y
     );
+
+    return cell;
   }
 
   /**
-   * @function 
+   * @function
    * @param {Coordinates} param0
    * @returns {boolean} Returns if this snake's movement is inside or not of the BoardMap
    */
@@ -123,7 +127,7 @@ export default class BoardMap {
   }
 
   /**
-   * @function 
+   * @function
    * @returns {number} Returns a delay snake movement
    */
   getMoveDelay() {
@@ -131,7 +135,7 @@ export default class BoardMap {
   }
 
   /**
-   * @function 
+   * @function
    * Start the game
    * Create new Snakes
    * Start the movement
@@ -148,7 +152,7 @@ export default class BoardMap {
     }
 
     this.snakes.forEach(
-      (snake) => this.move(snake)
+        (snake) => this.move(snake)
     );
   }
 
@@ -156,21 +160,24 @@ export default class BoardMap {
    * @function Snake's movement function
    * @param {Snake} snake
    */
-  move(snake) {
+  move(userId) {
     if (this.gameState !== gamePossibleStates.RUNNING) {
       return;
     }
 
+    const snake = this.snakes.get(userId)
+
     this.generateRandomTargetCell();
 
     const newHeadCell = new Coordinates(
-      snake.tail.x + snake.direction.move.x,
-      snake.tail.y + snake.direction.move.y
+        snake.tail.x + snake.direction.move.x,
+        snake.tail.y + snake.direction.move.y
     );
 
     if (
-      this.isCellOutOfBoard(newHeadCell) ||
-      snake.amountCellsInSnake() > 1
+        this.isCellOutOfBoard(newHeadCell) ||
+        snake.amountCellsInSnake() > 1 ||
+        !this.isTargetValid(newHeadCell)
     ) {
       this.stop();
       return;
@@ -184,23 +191,24 @@ export default class BoardMap {
         snake.lostTail(newHeadCell);
       }
     }
-
-    setTimeout(() => this.move(snake), this.getMoveDelay());
   }
 
   /**
-   * @function 
+   * @function
    * @param {string} userId
-   * @param {string} movement 
+   * @param {string} movement
    */
   onKeyPress(userId, movement) {
     if (this.gameState !== gamePossibleStates.RUNNING) return;
-    if (!this.snakes.get(userId)) 
+    if (!this.snakes.get(userId))
       throw new SnakeNotFoundError(`Snake with userId ${userId} not found.`);
 
     let newDirection = movements.find(_movement => _movement.direction === movement);
-    
+
     if(!newDirection) return;
+    /**
+     * TODO: Movement not found ERROR
+     */
 
     // @ts-ignore
     if (Math.abs(newDirection.keyCode - this.snakes.get(userId).direction.keyCode) !== 2) {
@@ -210,7 +218,7 @@ export default class BoardMap {
   }
 
   /**
-   * @function 
+   * @function
    * Stop's Game function
    * Clear and reset BoardMap info
    */
@@ -226,16 +234,30 @@ export default class BoardMap {
     for (let index = 0; index < keys.length; index++) {
       const snake = this.snakes.get(keys[index]);
 
+      /**
+       * TODO: implementar erro
+       */
       if(!snake) {
-        throw new SnakeNotFoundError("Snake not found - We should not be here!");
+        throw new Error();
       }
 
       snakes.set(keys[index], snake.getSnakeState())
     }
 
-    return { 
+    return {
       snakes,
       targetCells: this.targetCells
     }
+  }
+
+  isTargetValid(targetCell) {
+    let validTarget = true;
+
+    for (let [_, value] of this.snakes) {
+      if (!validTarget) break;
+      validTarget = !value.vertebraes.some(el => el.x === targetCell.x && el.y === targetCell.y);
+    }
+
+    return validTarget;
   }
 };

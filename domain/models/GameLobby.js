@@ -14,13 +14,13 @@ export default class GameLobby {
    * @type {BoardMap}
    */
   gameBoard;
-  
+
   /**
    * @property lobby id
    * @type {string}
    */
   id;
-    
+
   /**
    * @constructor GameLobby constructor
    * @param {number | undefined} boardSize
@@ -60,7 +60,7 @@ export default class GameLobby {
 
   /**
    * @method stopLobby Stops game calling gameBoard's method
-   */ 
+   */
   stopLobby() {
     this.gameBoard.stop();
   }
@@ -85,6 +85,10 @@ export default class GameLobby {
       snakes: { ...Object.fromEntries(snakes) },
       targetCells,
     }
+  }
+
+  gameNewLoop(userId) {
+    this.gameBoard.move(userId);
   }
 
   /**

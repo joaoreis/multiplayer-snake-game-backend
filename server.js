@@ -3,17 +3,17 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import {db} from "./data/dataBase/index.js";
+import { db } from "./data/dataBase/index.js";
 import http from 'http';
-import {Server} from "socket.io";
+import { Server } from "socket.io";
 
 const app = express();
 
 app.use(
-  cors({
-    origin: "*",
-    optionsSuccessStatus: 200,
-  })
+    cors({
+      origin: "*",
+      optionsSuccessStatus: 200,
+    })
 );
 
 app.use(bodyParser.json());
@@ -33,7 +33,7 @@ app.post('/login', (req, res) => {
     else {
       userLobbyId = db.getLobbyById(lobbyId)?.id;
       db.addUserToLobby(userId, userLobbyId);
-    }      
+    }
   } catch (error) {
     if(error?.type === 'UserAlreadyRegisteredError') {
       statusCode = 422;
@@ -46,7 +46,6 @@ app.post('/login', (req, res) => {
     }
     else {
       statusCode = 500;
-      errorMessage = 'Deu ruim!'
     }
   }
 
@@ -103,8 +102,8 @@ app.post('/player', (req, res) => {
    * retornar lista de snakes e lista de targets
    */
   res.json({statusCode: 200, data: {
-    mapState
-  }});
+      mapState
+    }});
 });
 
 const server = http.createServer(app);
@@ -118,6 +117,7 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   let socketLobbyId = null;
+  let socketUserId = null;
 
   socket.on('move', (arg) => {
     const { userId, lobbyId, userMovement } = arg;
@@ -142,13 +142,34 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('startGame', (arg) => {
+    const { lobbyId } = arg;
+
+    if(!lobbyId)
+      return;
+
+    try {
+      const lobby = db.getLobbyById(lobbyId);
+      lobby?.startLobby();
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  socket.on('joinLobby', (arg) => {
+    const { lobbyId, userId } = arg;
+
+    socketLobbyId = lobbyId;
+    socketUserId = userId;
+  });
+
   setInterval(() => {
     let currentLobby = null;
 
     try {
-      currentLobby = db.getLobbyById(socketLobbyId); 
+      currentLobby = db.getLobbyById(socketLobbyId);
     } catch (error) {
-      
+      return;
     }
 
     if(currentLobby?.isFinished) {
@@ -157,11 +178,12 @@ io.on('connection', (socket) => {
     }
 
     if(currentLobby?.isRunning) {
+      currentLobby.gameNewLoop(socketUserId);
       const mapState = currentLobby.getMapState();
       socket.emit('mapState', mapState);
     }
-      
-  }, 10);
+
+  }, 4000 / 12);
 });
 
 
