@@ -1,5 +1,5 @@
 import BoardMap from "./BoardMap.js";
-import Coordinates from "./Coordinates.js";
+import Coordinates from "./Coordinates.js"
 import User from "./User.js";
 import Snake from "./Snake.js";
 
