@@ -1,6 +1,6 @@
 import GameLobby from "../../domain/models/GameLobby.js";
 import User from "../../domain/models/User.js";
-import { setNewUser, userExists } from "./users.js";
+import {setNewUser, userExists} from "./users.js";
 import UserAlreadyRegisteredError from '../../domain/errors/UserAlreadyRegisteredError.js';
 import LobbyNotFoundError from '../../domain/errors/LobbyNotFoundError.js';
 
@@ -26,20 +26,20 @@ const _lobbies = [];
  * @returns {string} lobbyId
  */
 const createNewLobby = (userId) => {
-  const lobbyId = `sala${_lobbies.length}`;
+    const lobbyId = `sala${_lobbies.length}`;
 
-  const user = new User(userId, lobbyId);
+    const user = new User(userId, lobbyId);
 
-  if(userExists(userId))
-    throw new UserAlreadyRegisteredError();
+    if (userExists(userId))
+        throw new UserAlreadyRegisteredError();
 
-  const lobby = new GameLobby(boardSize, speed, lobbyId);
-  lobby.addUser(user);
+    const lobby = new GameLobby(boardSize, speed, lobbyId);
+    lobby.addUser(user);
 
-  setNewUser(user);
-  _lobbies.push(lobby);
+    setNewUser(user);
+    _lobbies.push(lobby);
 
-  return lobby.id;
+    return lobby.id;
 };
 
 /**
@@ -47,9 +47,9 @@ const createNewLobby = (userId) => {
  * @param {string} lobbyId
  */
 const removeLobbyById = (lobbyId) => {
-  for (let i = 0; i < _lobbies.length; i++)
-    if (_lobbies[i].id === lobbyId)
-      _lobbies.splice(i, 1);
+    for (let i = 0; i < _lobbies.length; i++)
+        if (_lobbies[i].id === lobbyId)
+            _lobbies.splice(i, 1);
 }
 
 /**
@@ -58,11 +58,11 @@ const removeLobbyById = (lobbyId) => {
  * @returns {GameLobby | undefined} game lobby found by its id
  */
 const getLobbyById = (lobbyId) => {
-  const lobby = _lobbies.find(el => el.id === lobbyId);
-  if(!lobby)
-    throw new LobbyNotFoundError();
+    const lobby = _lobbies.find(el => el.id === lobbyId);
+    if (!lobby)
+        throw new LobbyNotFoundError();
 
-  return lobby;
+    return lobby;
 };
 
 /**
@@ -70,28 +70,28 @@ const getLobbyById = (lobbyId) => {
  * @returns {Array<GameLobby>} Array of game lobbies
  */
 const getLobbies = () => {
-  return _lobbies;
+    return _lobbies;
 }
 
 const addUserToLobby = (userId, lobbyId) => {
-  if(userExists(userId))
-    throw new UserAlreadyRegisteredError();
+    if (userExists(userId))
+        throw new UserAlreadyRegisteredError();
 
-  const user = new User(userId, lobbyId);
-  const lobby = getLobbyById(lobbyId);
+    const user = new User(userId, lobbyId);
+    const lobby = getLobbyById(lobbyId);
 
-  if(!lobby?.id)
-    throw new LobbyNotFoundError();
+    if (!lobby?.id)
+        throw new LobbyNotFoundError();
 
-  lobby.addUser(user);
+    lobby.addUser(user);
 
-  setNewUser(user);
+    setNewUser(user);
 };
 
 export {
-  createNewLobby,
-  getLobbyById,
-  removeLobbyById,
-  getLobbies,
-  addUserToLobby
+    createNewLobby,
+    getLobbyById,
+    removeLobbyById,
+    getLobbies,
+    addUserToLobby
 }
