@@ -41,14 +41,14 @@ export default class Snake {
     const coordenate = new Coordenates(targetCell.x, targetCell.y);
     this.vertebraes = [];
     this.vertebraes.push(coordenate);
-    for (let i = 1; i < 3; i++) {
+    for (let i = 1; i < 12; i++) {
       const coord = coordenate.add(directionToGrow.times(i));
       this.vertebraes.push(coord);
     }
   }
 
   setStartingDirection() {
-    const randomDirectionIndex = Math.floor(Math.random() * 4);
+    const randomDirectionIndex = Math.floor(Math.random() * 2);
     this.direction = movements[randomDirectionIndex];
   }
   get tail () {
@@ -87,7 +87,7 @@ export default class Snake {
    * @returns {boolean}
    */
   checkCollision (target) { 
-    return this.vertebraes.slice(1, this.size)
+    return this.vertebraes.slice(0, this.size -1)
       .some(vertebrae => vertebrae.x === target.x && vertebrae.y === target.y);
   }
 
