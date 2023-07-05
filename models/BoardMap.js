@@ -177,7 +177,7 @@ export default class BoardMap {
       return;
     }
 
-      if ((this.loopIteration) % 5 !== 0) {
+      if ((this.loopIteration) % 3 !== 0) {
           this.loopIteration++;
           return;
       }
@@ -280,11 +280,11 @@ export default class BoardMap {
       }
       // Se o jogador colidiu consigo mesmo
       else if(player === snake) {
-        isInvalid = snake.checkCollision(snake.head);
+        isInvalid = snake.checkCollision(snake.tail);
       }
       // Se o jogador colidiu com o outro jogador
       else {
-        isInvalid = snake.checkCollision(player.head);
+        isInvalid = snake.checkCollision(player.tail);
       }
     });
 
