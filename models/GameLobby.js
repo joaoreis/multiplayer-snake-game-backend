@@ -1,5 +1,5 @@
 import BoardMap from "./BoardMap.js";
-import Coordinates from "./Coordinates.js"
+import Coordenates from "./Coordenates.js";
 import User from "./User.js";
 import Snake from "./Snake.js";
 
@@ -14,7 +14,7 @@ export default class GameLobby {
    * @type {BoardMap}
    */
   gameBoard;
-
+  
   /**
    * @property lobby id
    * @type {string}
@@ -59,13 +59,6 @@ export default class GameLobby {
   }
 
   /**
-   * @method stopLobby Stops game calling gameBoard's method
-   */
-  stopLobby() {
-    this.gameBoard.stop();
-  }
-
-  /**
    * @method userMove
    * @param {string} userId
    * @param {string} movement
@@ -76,19 +69,22 @@ export default class GameLobby {
 
   /**
    * @method getMapState
-   * @returns {{snakes: Array<Snake>, targetCells: Array<Coordinates>}}
+   * @returns {{snakes: Array<Snake>, targetCells: Array<Coordenates>}}
    */
   getMapState() {
-    const { snakes, targetCells } = this.gameBoard.getState();
+    const { snakes, targetCells, scores } = this.gameBoard.getState();
 
     return {
       snakes: { ...Object.fromEntries(snakes) },
       targetCells,
+      scores: { ...Object.fromEntries(scores) }
     }
   }
 
-  gameNewLoop(userId) {
-    this.gameBoard.move(userId);
+  gameNewLoop() {
+    this.users.forEach(
+      user => this.gameBoard.move(user.id)
+    );
   }
 
   /**
