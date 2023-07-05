@@ -1,4 +1,4 @@
-import User from "../../domain/models/User.js";
+import User from "../models/User.js";
 
 /**
  * @constant _users
@@ -30,9 +30,11 @@ const removeUserById = (userId) => {
   let i = 0;
   while (i < _users.length){
     if(_users[i].id === userId){
+      console.log(`USERID: ${userId} - DELETED`)
       _users.splice(i, 1);
       return;
     }
+    i++;
   }
 }
 

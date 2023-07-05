@@ -8,7 +8,7 @@ export default class LobbyNotFoundError extends CustomError {
    * @constructor
    * @param {string} message
    */
-  constructor(message= "Sala não encontrada") {
+  constructor(message) {
     super(message);
     this.type = 'LobbyNotFoundError';
   }
