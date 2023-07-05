@@ -182,7 +182,7 @@ io.on('connection', (socket) => {
                 const mapState = currentLobby.getMapState();
                 emitGameState(lobbyId, mapState);
             }
-        }, 10);
+        }, 30);
     };
 
     const emitGameState = (lobbyId, mapState) => {

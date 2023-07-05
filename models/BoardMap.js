@@ -177,7 +177,7 @@ export default class BoardMap {
       return;
     }
 
-      if ((this.loopIteration) % 3 !== 0) {
+      if ((this.loopIteration) % 6 !== 0) {
           this.loopIteration++;
           return;
       }
@@ -288,7 +288,6 @@ export default class BoardMap {
       }
     });
 
-    console.log(isInvalid)
     return isInvalid;
   }
 
