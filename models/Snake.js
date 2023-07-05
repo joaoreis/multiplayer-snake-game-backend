@@ -41,7 +41,7 @@ export default class Snake {
     const coordenate = new Coordenates(targetCell.x, targetCell.y);
     this.vertebraes = [];
     this.vertebraes.push(coordenate);
-    for (let i = 1; i < 12; i++) {
+    for (let i = 1; i < 3; i++) {
       const coord = coordenate.add(directionToGrow.times(i));
       this.vertebraes.push(coord);
     }
