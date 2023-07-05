@@ -143,7 +143,6 @@ io.on('connection', (socket) => {
             lobby = db.getLobbyById(room);
         } catch (error) {
             socket.emit('invalidLobbyId')
-
             return;
         }
 
@@ -183,7 +182,7 @@ io.on('connection', (socket) => {
                 const mapState = currentLobby.getMapState();
                 emitGameState(lobbyId, mapState);
             }
-        }, 2000 / 12);
+        }, 10);
     };
 
     const emitGameState = (lobbyId, mapState) => {
