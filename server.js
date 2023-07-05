@@ -179,7 +179,7 @@ io.on('connection', (socket) => {
                 const mapState = currentLobby.getMapState();
                 emitGameState(lobbyId, mapState);
             }
-        }, 5 * 1000 / 12);
+        }, 2000 / 12);
     };
 
     const emitGameState = (lobbyId, mapState) => {
