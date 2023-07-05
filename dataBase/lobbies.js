@@ -13,7 +13,7 @@ const boardSize = 40;
 /**
  * @constant speed game speed
  */
-const speed = 12;
+const speed = 10;
 
 /**
  * @constant _lobbies
