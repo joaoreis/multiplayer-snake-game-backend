@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import {db} from "./dataBase/index.js";
 import http from "http";
 import {Server} from "socket.io";
+import { GAME_INTERVAL_MS } from "./utils/constants.js"
 
 const app = express();
 const PORT = process.env.PORT || 3030
@@ -178,7 +179,7 @@ io.on('connection', (socket) => {
                 const mapState = currentLobby.getMapState();
                 emitGameState(lobbyId, mapState);
             }
-        }, 30);
+        }, GAME_INTERVAL_MS);
     };
 
     const emitGameState = (lobbyId, mapState) => {
