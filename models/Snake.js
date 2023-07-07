@@ -96,4 +96,6 @@ export default class Snake {
       score: this.score
     }
   }
+
+
 };
