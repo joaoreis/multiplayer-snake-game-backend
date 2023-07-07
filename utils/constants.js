@@ -2,7 +2,7 @@ import Coordenates from "../models/Coordenates.js";
 import Movement from "../models/Movement.js";
 
 const ON_KEYPRESS_TIMEOUT = 0
-const GAME_INTERVAL_MS = 30
+const GAME_INTERVAL_MS = 70
 const GAME_SPEED_FACTOR = 9
 const SNAKE_STARTING_LENGTH = 3
 
