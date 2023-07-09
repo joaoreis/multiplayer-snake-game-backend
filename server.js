@@ -8,7 +8,7 @@ import http from "http";
 import {Server} from "socket.io";
 
 const app = express();
-const PORT = process.env.PORT || 3030
+const PORT = process.env.PORT || 5000
 
 app.use(
     cors({
@@ -16,7 +16,6 @@ app.use(
         optionsSuccessStatus: 200,
     })
 );
-
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
@@ -151,6 +150,7 @@ io.on('connection', (socket) => {
             socket.emit('invalidMove');
         }
     }
+
 
     function startSoloGame(arg) {
         const {userId} = arg;
