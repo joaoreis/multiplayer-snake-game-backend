@@ -56,6 +56,20 @@ export default class GameLobby {
                 this.users.splice(i, 1);
     }
 
+  /**
+   * @method getMapState
+   * @returns {{snakes: Array<Snake>, targetCells: Array<Coordenates>}}
+   */
+  getMapState() {
+    const { snakes, targetCells, scores, gameLoser } = this.gameBoard.getState();
+    
+      return {
+        snakes: { ...Object.fromEntries(snakes) },
+        targetCells,
+        scores: { ...Object.fromEntries(scores) },
+        gameLoser
+    }
+  }
     /**
      * @method startLobby Starts game calling gameBoard's method
      */
@@ -69,6 +83,7 @@ export default class GameLobby {
             this.runMovement(this.id, user.id);
         });
     }
+
 
     runMovement(lobby, userId) {
         setInterval(() => {
