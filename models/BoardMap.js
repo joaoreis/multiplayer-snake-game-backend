@@ -2,6 +2,9 @@ import SnakeNotFoundError from "../errors/SnakeNotFoundError.js";
 import { movements, gamePossibleStates } from "../utils/constants.js";
 import Coordenates from "./Coordenates.js";
 import Snake from "./Snake.js";
+import { ON_KEYPRESS_TIMEOUT } from "../utils/constants.js"
+import { GAME_SPEED_FACTOR } from "../utils/constants.js"
+import Movement from "./Movement.js";
 
 /**
  * Creates a new BoardMap
@@ -58,16 +61,6 @@ export default class BoardMap {
     this.speed = speed;
   }
 
-  /**
-   * @function
-   * @returns {Coordenates} BoardMap center's Coordenates
-   */
-  middleCell() {
-    let middleX = Math.round(this.boardSize.x / 2);
-    let middleY = Math.round(this.boardSize.y / 2);
-
-    return new Coordenates(middleX, middleY);
-  }
 
   /**
    * @function
@@ -75,9 +68,19 @@ export default class BoardMap {
    * @param {string} userId
    */
   newSnake(userId) {
-    const rand = new Coordenates(Math.floor(Math.random() * 15), Math.floor(Math.random() * 15));
-    const middleCell = this.middleCell().add(rand);
-    this.snakes.set(userId, new Snake(middleCell));
+    let startingPoint;
+    let direction;
+    if (this.snakes.size === 0) {
+      // player 1 starts on top left corner moving down
+      startingPoint = new Coordenates(5, 5);
+      direction = movements[3]
+    } else {
+      // player 2 starts on bottom right corner moving up
+      startingPoint = new Coordenates(35, 35)
+      direction = movements[1]
+    }
+
+    this.snakes.set(userId, new Snake(startingPoint, direction));
     this.scores.set(userId, 0);
     this.movementLock.set(userId, false);
   }
@@ -177,7 +180,7 @@ export default class BoardMap {
       return;
     }
 
-      if ((this.loopIteration) % 6 !== 0) {
+      if ((this.loopIteration) % GAME_SPEED_FACTOR !== 0) {
           this.loopIteration++;
           return;
       }
@@ -223,7 +226,7 @@ export default class BoardMap {
 
     setTimeout(() => {
       this.movementLock.set(userId, false);
-    }, 30);
+    }, ON_KEYPRESS_TIMEOUT);
   }
 
   /**
