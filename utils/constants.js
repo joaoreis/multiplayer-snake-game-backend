@@ -1,7 +1,12 @@
 import Coordenates from "../models/Coordenates.js";
 import Movement from "../models/Movement.js";
 
-/**
+const ON_KEYPRESS_TIMEOUT = 0
+const GAME_INTERVAL_MS = 70
+const GAME_SPEED_FACTOR = 9
+const SNAKE_STARTING_LENGTH = 3
+
+/**z
  * @constant
  * @type {gamePossibleStates}
  */
@@ -28,5 +33,9 @@ movements.push(newMovement);
 
 export { 
   movements,
-  gamePossibleStates
+  gamePossibleStates,
+  ON_KEYPRESS_TIMEOUT,
+  GAME_INTERVAL_MS,
+  GAME_SPEED_FACTOR,
+  SNAKE_STARTING_LENGTH
 };

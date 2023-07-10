@@ -1,28 +1,35 @@
 // @ts-nocheck
 
 import express from "express";
-import cors from "cors";
 import bodyParser from "body-parser";
 import {db} from "./dataBase/index.js";
 import http from "http";
 import {Server} from "socket.io";
+import {GAME_INTERVAL_MS, movements, ON_KEYPRESS_TIMEOUT} from "./utils/constants.js"
+import Queue from "./utils/Queue.js";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 5000
 
-app.use(
-    cors({
-        origin: "*",
-        optionsSuccessStatus: 200,
-    })
-);
-app.use(bodyParser.json());
+// app.use(
+//     cors({
+//         origin: "*",
+//         optionsSuccessStatus: 200,
+//     })
+// );
+app.use(function(request, response, next) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "*",
     }
+
 });
 const clientRooms = {};
 
@@ -30,8 +37,11 @@ const clientRooms = {};
  * @type {Map<string, Array<string>>}
  */
 const roomsList = new Map();
+let ping = 0;
 
 io.on('connection', (socket) => {
+
+    const movementQueue = new Queue();
 
     socket.on('newLobby', newLobby);
 
@@ -126,8 +136,9 @@ io.on('connection', (socket) => {
     }
 
     function move(arg) {
-        const {userId, userMovement} = arg;
-
+        const {userId, userMovement, timeStamp} = arg;
+        ping = Date.now() - timeStamp
+        console.log(`ping: ${ping}`);
         const room = clientRooms[userId];
 
         if (!room) return;
@@ -138,16 +149,14 @@ io.on('connection', (socket) => {
             lobby = db.getLobbyById(room);
         } catch (error) {
             socket.emit('invalidLobbyId')
-
             return;
         }
-
-        try {
-            // @ts-ignore
-            lobby.userMove(userId, userMovement);
-        } catch (error) {
-            socket.emit('invalidMove');
+        const movementQueue = lobby.usersMovementQueue.get(userId).queue;
+        const lastMovement = movementQueue.peek()
+        if (!userMovement === lastMovement || movementQueue.isEmpty) {
+            movementQueue.enqueue(userMovement)
         }
+        // console.log(`userId : ${userId}  `, movementQueue)
     }
 
 
@@ -178,10 +187,11 @@ io.on('connection', (socket) => {
                 const mapState = currentLobby.getMapState();
                 emitGameState(lobbyId, mapState);
             }
-        }, 2000 / 12);
+        }, GAME_INTERVAL_MS);
     };
 
     const emitGameState = (lobbyId, mapState) => {
+        // console.log(mapState)
         io.sockets.in(lobbyId)
             .emit('mapState', mapState);
     }
@@ -190,6 +200,7 @@ io.on('connection', (socket) => {
         io.sockets.in(lobbyId)
             .emit('gameFinished', mapState);
         io.sockets.socketsLeave(lobbyId);
+        io.sockets.in(lobbyId).disconnectSockets(false)
 
         roomsList.delete(lobbyId);
     }
@@ -198,3 +209,6 @@ io.on('connection', (socket) => {
 server.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
+
+
+// TODO: quando tiver um disconnect, procurar a sala ativa do socket desconectado e remover
