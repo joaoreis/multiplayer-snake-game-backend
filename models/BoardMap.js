@@ -186,7 +186,6 @@ export default class BoardMap {
       this.isTargetInvalid(userId)
     ) {
       this.gameLoser = userId;
-
       this.stop();
       return;
     }

@@ -58,7 +58,7 @@ export default class GameLobby {
 
   /**
    * @method getMapState
-   * @returns {{snakes: Array<Snake>, targetCells: Array<Coordenates>}}
+   * @returns {{scores: {[p: string]: any}, gameLoser: string, snakes: {[p: string]: any}, targetCells: Array<Coordenates>}}
    */
   getMapState() {
     const { snakes, targetCells, scores, gameLoser } = this.gameBoard.getState();
@@ -108,20 +108,6 @@ export default class GameLobby {
      */
     userMove(userId, movement) {
         this.gameBoard.onKeyPress(userId, movement);
-    }
-
-    /**
-     * @method getMapState
-     * @returns {{snakes: Array<Snake>, targetCells: Array<Coordenates>}}
-     */
-    getMapState() {
-        const {snakes, targetCells, scores} = this.gameBoard.getState();
-
-        return {
-            snakes: {...Object.fromEntries(snakes)},
-            targetCells,
-            scores: {...Object.fromEntries(scores)}
-        }
     }
 
     gameNewLoop() {
