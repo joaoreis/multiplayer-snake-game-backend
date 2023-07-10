@@ -1,28 +1,33 @@
 // @ts-nocheck
 
 import express from "express";
-import cors from "cors";
 import bodyParser from "body-parser";
 import {db} from "./dataBase/index.js";
 import http from "http";
 import {Server} from "socket.io";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 5000
 
-app.use(
-    cors({
-        origin: "*",
-        optionsSuccessStatus: 200,
-    })
-);
-app.use(bodyParser.json());
+// app.use(
+//     cors({
+//         origin: "*",
+//         optionsSuccessStatus: 200,
+//     })
+// );
+app.use(function(request, response, next) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "*",
     }
+
 });
 const clientRooms = {};
 
