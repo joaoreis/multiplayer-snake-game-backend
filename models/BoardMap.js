@@ -43,7 +43,15 @@ export default class BoardMap {
    */
   scores = new Map();
 
+  /**
+   * @type {Map<string, boolean>}
+   */
   movementLock = new Map();
+
+  /**
+   * @type {string}
+   */
+  gameLoser = '';
 
   /**
    * @constructor
@@ -171,6 +179,8 @@ export default class BoardMap {
       this.isCellOutOfBoard(newHeadCell) ||
       this.isTargetInvalid(userId)
     ) {
+      this.gameLoser = userId;
+
       this.stop();
       return;
     }
@@ -258,7 +268,8 @@ export default class BoardMap {
     return { 
       snakes,
       targetCells: this.targetCells,
-      scores
+      scores,
+      gameLoser: this.gameLoser
     }
   }
 
