@@ -160,7 +160,6 @@ io.on('connection', (socket) => {
     }
 
 
-
     function startSoloGame(arg) {
         const {userId} = arg;
         const lobbyId = clientRooms[userId];
