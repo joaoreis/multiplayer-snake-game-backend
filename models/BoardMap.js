@@ -5,6 +5,7 @@ import Snake from "./Snake.js";
 import { ON_KEYPRESS_TIMEOUT } from "../utils/constants.js"
 import { GAME_SPEED_FACTOR } from "../utils/constants.js"
 import Movement from "./Movement.js";
+import Queue from "../utils/Queue.js";
 
 /**
  * Creates a new BoardMap
@@ -48,7 +49,7 @@ export default class BoardMap {
 
   movementLock = new Map();
 
-  loopIteration = 0;
+  loopIteration = 1;
 
   /**
    * @constructor
@@ -180,11 +181,12 @@ export default class BoardMap {
       return;
     }
 
-      if ((this.loopIteration) % GAME_SPEED_FACTOR !== 0) {
-          this.loopIteration++;
-          return;
-      }
-      this.loopIteration++;
+      // if ((this.loopIteration) % GAME_SPEED_FACTOR === 0) {
+      //     this.loopIteration = 0;
+      // } else {
+      //     this.loopIteration++;
+      //     return;
+      // }
 
     const index = this.isTargetNewHead(newHeadCell);
     if (index >= 0) {
@@ -206,24 +208,28 @@ export default class BoardMap {
   onKeyPress(userId, movement) {
     if (this.movementLock.get(userId)) return;
     if (this.gameState !== gamePossibleStates.RUNNING) return;
-    if (!this.snakes.get(userId))
+    if (!this.snakes.get(userId)) {
       throw new SnakeNotFoundError(`Snake with userId ${userId} not found.`);
-
+    }
     this.movementLock.set(userId, true);
 
     let newDirection = movements.find(_movement => _movement.direction === movement);
+    if(!newDirection) return; // won't happen by design
+    this.processMovement(userId, newDirection)
 
-    if(!newDirection) return;
-    /**
-     * TODO: Movement not found ERROR
-     */
 
+  }
+
+  processMovement(userId, newDirection)  {
+    const movement = newDirection
     // @ts-ignore
-    if (Math.abs(newDirection.keyCode - this.snakes.get(userId).direction.keyCode) !== 2) {
+    if (Math.abs(movement.keyCode - this.snakes.get(userId).direction.keyCode) !== 2) {
+      // console.log(Math.abs(newDirection.keyCode - this.snakes.get(userId).direction.keyCode));
       // @ts-ignore
-      this.snakes.get(userId).direction = newDirection;
+      this.snakes.get(userId).direction = movement;
+    } else {
+      this.movementLock.set(userId, false)
     }
-
     setTimeout(() => {
       this.movementLock.set(userId, false);
     }, ON_KEYPRESS_TIMEOUT);
