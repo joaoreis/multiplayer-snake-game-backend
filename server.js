@@ -4,8 +4,7 @@ import express from "express";
 import {db} from "./dataBase/index.js";
 import http from "http";
 import {Server} from "socket.io";
-import {GAME_INTERVAL_MS, movements, ON_KEYPRESS_TIMEOUT} from "./utils/constants.js"
-import Queue from "./utils/Queue.js";
+import {GAME_INTERVAL_MS} from "./utils/constants.js"
 
 const app = express();
 const PORT = process.env.PORT || 5000
@@ -29,13 +28,10 @@ const clientRooms = {};
  * @type {Map<string, Array<string>>}
  */
 const roomsList = new Map();
-let ping = 0;
 
 const socketToUserMap = new Map();
 
 io.on('connection', (socket) => {
-
-    const movementQueue = new Queue();
 
     socket.on('newLobby', newLobby);
 

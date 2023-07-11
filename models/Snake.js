@@ -1,10 +1,11 @@
-import {movements, SNAKE_STARTING_LENGTH} from "../utils/constants.js";
-import Coordenates from "./Coordenates.js";
-import Movement from "./Movement.js";
+// noinspection SpellCheckingInspection
+
+import {SNAKE_STARTING_LENGTH} from "../utils/constants.js";
+import Coordinates from "./Coordinates.js";
 
 /**
- * @constant defaultSnakeCoordenates posição padrão para o mapa modificar depois
- * @type {Coordenates}
+ * @constant defaultSnakeCoordinates posição padrão para o mapa modificar depois
+ * @type {Coordinates}
  */
 
 /**
@@ -14,7 +15,7 @@ import Movement from "./Movement.js";
 export default class Snake {
   /**
    * @property vertebraes
-   * @type {Array<Coordenates>}
+   * @type {Array<Coordinates>}
    */
   vertebraes;
 
@@ -31,36 +32,34 @@ export default class Snake {
 
   /**
    * @constructor
-   * @param {Coordenates} targetCell
+   * @param {Coordinates} targetCell
+   * @param direction
    */
   constructor(targetCell, direction) {
     this.direction = direction
     let directionToGrow = this.direction.move;
 
-    const coordenate = new Coordenates(targetCell.x, targetCell.y);
+    const coordinate = new Coordinates(targetCell.x, targetCell.y);
     this.vertebraes = [];
-    this.vertebraes.push(coordenate);
+    this.vertebraes.push(coordinate);
     for (let i = 1; i < SNAKE_STARTING_LENGTH; i++) {
-      const coord = coordenate.add(directionToGrow.times(i));
+      const coord = coordinate.add(directionToGrow.times(i));
       this.vertebraes.push(coord);
     }
   }
-  get tail () {
+  get head () {
     return this.vertebraes[this.vertebraes.length - 1];
-  }
-  get head() {
-    return this.vertebraes[0];
   }
   get size() {
     return this.vertebraes.length;
   }
   /**
    * @function newHead Adds new head to the snake and add more points to score
-   * @param {Coordenates} param0
+   * @param {Coordinates} param0
    * @param {number} speed
    */
   newHead({ x, y }, speed) {
-    const newHeadCell = new Coordenates(x, y);
+    const newHeadCell = new Coordinates(x, y);
 
     this.vertebraes.push(newHeadCell);
     this.score += speed;
@@ -68,7 +67,7 @@ export default class Snake {
 
   /**
    * @function move
-   * @param {Coordenates} foodCoord
+   * @param {Coordinates} foodCoord
    */
   move(foodCoord) {
     this.vertebraes.shift();
@@ -77,7 +76,7 @@ export default class Snake {
 
   /**
    * @function checkCollision
-   * @param {Coordenates} target
+   * @param {Coordinates} target
    * @returns {boolean}
    */
   checkCollision (target) {

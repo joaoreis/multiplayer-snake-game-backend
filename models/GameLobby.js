@@ -1,8 +1,5 @@
 import BoardMap from "./BoardMap.js";
-import Coordenates from "./Coordenates.js";
-import User from "./User.js";
-import Snake from "./Snake.js";
-import {GAME_INTERVAL_MS, ON_KEYPRESS_TIMEOUT} from "../utils/constants.js";
+import {GAME_INTERVAL_MS, gamePossibleStates, ON_KEYPRESS_TIMEOUT} from "../utils/constants.js";
 import Queue from "../utils/Queue.js";
 
 export default class GameLobby {
@@ -23,7 +20,7 @@ export default class GameLobby {
      */
     id;
 
-    // {userId: (Queue, lastMovimentTs)}
+    // {userId: (Queue, lastMovementTs)}
     usersMovementQueue = new Map();
 
     /**
@@ -46,19 +43,9 @@ export default class GameLobby {
         this.gameBoard.newSnake(user.id);
     }
 
-    /**
-     * @method removeUser Removes user from user's Array by userId
-     * @param {string} userId
-     */
-    removeUser(userId) {
-        for (let i = 0; i < this.users.length; i++)
-            if (this.users[i].id === userId)
-                this.users.splice(i, 1);
-    }
-
   /**
    * @method getMapState
-   * @returns {{scores: {[p: string]: any}, gameLoser: string, snakes: {[p: string]: any}, targetCells: Array<Coordenates>}}
+   * @returns {{scores: {[p: string]: any}, gameLoser: string, snakes: {[p: string]: any}, targetCells: Array<Coordinates>}}
    */
   getMapState() {
     const { snakes, targetCells, scores, gameLoser } = this.gameBoard.getState();
@@ -125,7 +112,7 @@ export default class GameLobby {
      * @returns {boolean}
      */
     get isRunning() {
-        return this.gameBoard.gameState === 1;
+        return this.gameBoard.gameState === gamePossibleStates.RUNNING;
     }
 
     /**
@@ -133,6 +120,6 @@ export default class GameLobby {
      * @returns {boolean}
      */
     get isFinished() {
-        return this.gameBoard.gameState === 2;
+        return this.gameBoard.gameState === gamePossibleStates.FINISHED;
     }
 }

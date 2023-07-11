@@ -1,11 +1,8 @@
 import SnakeNotFoundError from "../errors/SnakeNotFoundError.js";
 import { movements, gamePossibleStates } from "../utils/constants.js";
-import Coordenates from "./Coordenates.js";
+import Coordinates from "./Coordinates.js";
 import Snake from "./Snake.js";
 import { ON_KEYPRESS_TIMEOUT } from "../utils/constants.js"
-import { GAME_SPEED_FACTOR } from "../utils/constants.js"
-import Movement from "./Movement.js";
-import Queue from "../utils/Queue.js";
 
 /**
  * Creates a new BoardMap
@@ -14,13 +11,13 @@ import Queue from "../utils/Queue.js";
 export default class BoardMap {
   /**
    * @property boardSize
-   * @type {Coordenates}
+   * @type {Coordinates}
    */
   boardSize;
 
   /**
    * @property targetCells
-   * @type {Array<Coordenates>}
+   * @type {Array<Coordinates>}
    */
   targetCells = [];
 
@@ -32,7 +29,7 @@ export default class BoardMap {
 
   /**
    * @property gameState
-   * @type {gamePossibleStates}
+   * @type {number}
    */
   gameState;
 
@@ -52,8 +49,6 @@ export default class BoardMap {
    */
   movementLock = new Map();
 
-  loopIteration = 1;
-
   /**
    * @type {string}
    */
@@ -65,7 +60,7 @@ export default class BoardMap {
    * @param {number} speed
    */
   constructor(boardSize = 0, speed) {
-    this.boardSize = new Coordenates(boardSize, boardSize);
+    this.boardSize = new Coordinates(boardSize, boardSize);
     this.gameState = gamePossibleStates.NOT_STARTED;
     this.speed = speed;
   }
@@ -81,11 +76,11 @@ export default class BoardMap {
     let direction;
     if (this.snakes.size === 0) {
       // player 1 starts on top left corner moving down
-      startingPoint = new Coordenates(5, 5);
+      startingPoint = new Coordinates(5, 5);
       direction = movements[3]
     } else {
       // player 2 starts on bottom right corner moving up
-      startingPoint = new Coordenates(35, 35)
+      startingPoint = new Coordinates(35, 35)
       direction = movements[1]
     }
 
@@ -111,10 +106,10 @@ export default class BoardMap {
 
   /**
    * @function
-   * @returns {Coordenates} Returns a random Coordenates inside the BoardMap
+   * @returns {Coordinates} Returns a random Coordinates inside the BoardMap
    */
   getRandomCell() {
-    return new Coordenates(
+    return new Coordinates(
       Math.floor(Math.random() * this.boardSize.x),
       Math.floor(Math.random() * this.boardSize.y)
     );
@@ -122,11 +117,10 @@ export default class BoardMap {
 
   /**
    * @function
-   * @param {Coordenates} param0
-   * @param {Snake} snake
-   * @returns {Coordenates | undefined} Returns if this snake's movement is towards a Target
+   * @param {Coordinates} param0
+   * @returns {number} Returns if this snake's movement is towards a Target
    */
-  isTargetNewHead({ x, y }) {
+  getNewHeadIndex({ x, y }) {
     let cell = this.targetCells.find(
       cell =>
         x === cell.x &&
@@ -138,7 +132,7 @@ export default class BoardMap {
 
   /**
    * @function
-   * @param {Coordenates} param0
+   * @param {Coordinates} param0
    * @returns {boolean} Returns if this snake's movement is inside or not of the BoardMap
    */
   isCellOutOfBoard({ x, y }) {
@@ -165,7 +159,7 @@ export default class BoardMap {
 
   /**
    * @function Snake's movement function
-   * @param {Snake} snake
+   * @param userId
    */
   async move(userId) {
     if (this.gameState !== gamePossibleStates.RUNNING) {
@@ -176,9 +170,9 @@ export default class BoardMap {
 
     this.generateRandomTargetCell();
 
-    const newHeadCell = new Coordenates(
-      snake.tail.x + snake.direction.move.x,
-      snake.tail.y + snake.direction.move.y
+    const newHeadCell = new Coordinates(
+      snake.head.x + snake.direction.move.x,
+      snake.head.y + snake.direction.move.y
     );
 
     if (
@@ -190,14 +184,7 @@ export default class BoardMap {
       return;
     }
 
-      // if ((this.loopIteration) % GAME_SPEED_FACTOR === 0) {
-      //     this.loopIteration = 0;
-      // } else {
-      //     this.loopIteration++;
-      //     return;
-      // }
-
-    const index = this.isTargetNewHead(newHeadCell);
+    const index = this.getNewHeadIndex(newHeadCell);
     if (index >= 0) {
       snake.newHead(newHeadCell, this.speed);
       this.targetCells.splice(index, 1);
@@ -206,7 +193,6 @@ export default class BoardMap {
     } else {
       snake.move(newHeadCell);
     }
-
   }
 
   /**
@@ -295,15 +281,15 @@ export default class BoardMap {
 
     this.snakes.forEach( snake => {
       if (isInvalid) {
-        return;
+
       }
       // Se o jogador colidiu consigo mesmo
       else if(player === snake) {
-        isInvalid = snake.checkCollision(snake.tail);
+        isInvalid = snake.checkCollision(snake.head);
       }
       // Se o jogador colidiu com o outro jogador
       else {
-        isInvalid = snake.checkCollision(player.tail);
+        isInvalid = snake.checkCollision(player.head);
       }
     });
 

@@ -3,6 +3,7 @@
  * https://jestjs.io/docs/configuration
  */
 
+// noinspection GrazieInspection
 export default {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
