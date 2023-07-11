@@ -1,8 +1,8 @@
 /**
- * Creates a new Coordenates
+ * Creates a new Coordinates
  * @class
  */
-export default class Coordenates {
+export default class Coordinates {
 
     /**
      * @constructor
@@ -15,13 +15,13 @@ export default class Coordenates {
     }
 
     add (another) {
-      return new Coordenates(
+      return new Coordinates(
         this.x + another.x,
         this.y + another.y);
     }
 
     times (multiplier) {
-      return new Coordenates(
+      return new Coordinates(
         this.x * multiplier,
         this.y * multiplier);
     }

@@ -1,24 +1,15 @@
 // @ts-nocheck
 
 import express from "express";
-import bodyParser from "body-parser";
 import {db} from "./dataBase/index.js";
 import http from "http";
 import {Server} from "socket.io";
-import {GAME_INTERVAL_MS, movements, ON_KEYPRESS_TIMEOUT} from "./utils/constants.js"
-import Queue from "./utils/Queue.js";
-import cors from "cors";
+import {GAME_INTERVAL_MS} from "./utils/constants.js"
 
 const app = express();
 const PORT = process.env.PORT || 5000
 
-// app.use(
-//     cors({
-//         origin: "*",
-//         optionsSuccessStatus: 200,
-//     })
-// );
-app.use(function(request, response, next) {
+app.use(function (request, response, next) {
     response.header("Access-Control-Allow-Origin", "*");
     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
@@ -37,11 +28,10 @@ const clientRooms = {};
  * @type {Map<string, Array<string>>}
  */
 const roomsList = new Map();
-let ping = 0;
+
+const socketToUserMap = new Map();
 
 io.on('connection', (socket) => {
-
-    const movementQueue = new Queue();
 
     socket.on('newLobby', newLobby);
 
@@ -51,9 +41,11 @@ io.on('connection', (socket) => {
 
     socket.on('startSoloGame', startSoloGame);
 
+    socket.on('disconnect', handleDisconnect);
+
     function newLobby(arg) {
         const {userId} = arg;
-
+        socketToUserMap.set(socket.id, userId);
         let lobbyId = 0
         let roomName = `sala${lobbyId}`
         while (roomsList.get(roomName)) {
@@ -78,7 +70,7 @@ io.on('connection', (socket) => {
 
     function joinLobby(arg) {
         const {lobbyId, userId} = arg;
-
+        socketToUserMap.set(socket.id, userId);
         if (!lobbyId) {
             socket.emit('invalidLobbyId');
 
@@ -136,9 +128,7 @@ io.on('connection', (socket) => {
     }
 
     function move(arg) {
-        const {userId, userMovement, timeStamp} = arg;
-        ping = Date.now() - timeStamp
-        console.log(`ping: ${ping}`);
+        const {userId, userMovement} = arg;
         const room = clientRooms[userId];
 
         if (!room) return;
@@ -156,7 +146,6 @@ io.on('connection', (socket) => {
         if (!userMovement === lastMovement || movementQueue.isEmpty) {
             movementQueue.enqueue(userMovement)
         }
-        // console.log(`userId : ${userId}  `, movementQueue)
     }
 
 
@@ -191,7 +180,6 @@ io.on('connection', (socket) => {
     };
 
     const emitGameState = (lobbyId, mapState) => {
-        // console.log(mapState)
         io.sockets.in(lobbyId)
             .emit('mapState', mapState);
     }
@@ -200,15 +188,39 @@ io.on('connection', (socket) => {
         io.sockets.in(lobbyId)
             .emit('gameFinished', mapState);
         io.sockets.socketsLeave(lobbyId);
-        io.sockets.in(lobbyId).disconnectSockets(false)
-
+        io.sockets.in(lobbyId).disconnectSockets(false);
         roomsList.delete(lobbyId);
+    }
+
+    function handleDisconnect() {
+        const disconnectedId = socketToUserMap.get(socket.id);
+        const lobbyId = clientRooms[disconnectedId];
+        let currentLobby;
+        try {
+            currentLobby = db.getLobbyById(lobbyId);
+        } catch (error) {
+            // Lobby not found -> User refreshed the page without creating / joining a room, nothing to do
+            return;
+        }
+
+        if (currentLobby.isRunning) {
+            // User refreshed the page while in game -> forcing the game to end, deleting the user and the lobby
+            currentLobby.forceEnd()
+        } else {
+            if (!currentLobby.isFinished) {
+                // User refreshed the page while in the lobby -> we need to clear the lobby and the user
+                io.sockets.socketsLeave(lobbyId);
+                io.sockets.in(lobbyId).disconnectSockets(false);
+                roomsList.delete(lobbyId);
+
+                const users = currentLobby.users;
+                users.forEach(user => delete clientRooms[user.id]);
+                db.removeLobbyById(lobbyId);
+            }
+        }
     }
 })
 
 server.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
-
-
-// TODO: quando tiver um disconnect, procurar a sala ativa do socket desconectado e remover

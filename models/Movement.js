@@ -1,4 +1,4 @@
-import Coordenates from "./Coordenates.js";
+// noinspection SpellCheckingInspection
 
 /**
  * @class Create a possible snake movement
@@ -18,14 +18,14 @@ export default class Movement {
 
   /**
    * @property as cordenadas do movimento
-   * @type {Coordenates}
+   * @type {Coordinates}
    */
   move;
   
   /**
    * @param {string} direction
    * @param {number} keyCode
-   * @param {Coordenates} move
+   * @param {Coordinates} move
    */
   constructor(direction, keyCode, move) {
     this.direction = direction;

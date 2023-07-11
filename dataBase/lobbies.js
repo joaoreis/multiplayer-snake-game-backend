@@ -1,4 +1,6 @@
 
+// noinspection SpellCheckingInspection
+
 import GameLobby from "../models/GameLobby.js";
 import User from "../models/User.js";
 import { setNewUser, userExists, removeUserById } from "./users.js";
@@ -71,28 +73,20 @@ const removeLobbyById = (lobbyId) => {
 const getLobbyById = (lobbyId) => {
   const lobby = _lobbies.find(el => el.id === lobbyId);
   if(!lobby)
-    throw new LobbyNotFoundError();
-  
+    throw new LobbyNotFoundError("Sala não encontrada");
   return lobby;
 };
 
-/**
- * @function getLobbies
- * @returns {Array<GameLobby>} Array of game lobbies
- */
-const getLobbies = () => {
-  return _lobbies;
-}
 
 const addUserToLobby = (userId, lobbyId) => {
   if(userExists(userId))
-    throw new UserAlreadyRegisteredError();
+    throw new UserAlreadyRegisteredError("Nome de usuário já utilizado");
 
   const user = new User(userId, lobbyId);
   const lobby = getLobbyById(lobbyId);
 
   if(!lobby?.id)
-    throw new LobbyNotFoundError();
+    throw new LobbyNotFoundError("Sala não encontrada.");
  
   lobby.addUser(user);
 
@@ -104,6 +98,5 @@ export {
   createNewLobby,
   getLobbyById,
   removeLobbyById,
-  getLobbies,
   addUserToLobby
 }

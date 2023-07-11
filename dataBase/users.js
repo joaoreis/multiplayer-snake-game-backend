@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+// noinspection SpellCheckingInspection
 
 /**
  * @constant _users
@@ -12,14 +12,6 @@ const _users = [];
  */
 const setNewUser = (newUser) => {
   _users.push(newUser);
-}
-
-/**
- * @function getUserList
- * @returns {Array<User>} retorna a lista de usuários
- */
-const getUserList = () => {
-  return _users;
 }
 
 /**
@@ -44,7 +36,6 @@ const userExists = (userId) => {
 
 export {
   setNewUser,
-  getUserList,
   removeUserById,
   userExists
 }
