@@ -23,7 +23,7 @@ export default class GameLobby {
      */
     id;
 
-    // {userId: (QUeue, lastMovimentTs)}
+    // {userId: (Queue, lastMovimentTs)}
     usersMovementQueue = new Map();
 
     /**
@@ -114,6 +114,10 @@ export default class GameLobby {
         this.users.forEach(
             user => this.gameBoard.move(user.id)
         );
+    }
+
+    forceEnd() {
+        this.gameBoard.stop()
     }
 
     /**
